@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-import { UserRound, KeyRound } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+import { UserRound, KeyRound, Eye, EyeOff } from "lucide-react";
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
@@ -10,45 +10,53 @@ interface LoginPageProps {
 export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    employeeId: '',
-    password: '',
+    employeeId: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  // Clear local storage when the page renders
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-  
+    setError("");
+
     try {
-      const response = await axios.post('https://development2.promena.in/api/Account/EmployeeLogin', {
-        email: formData.employeeId, 
-        password: formData.password,
-        roleId: 2,
-      });
-  
+      const response = await axios.post(
+        "https://development2.promena.in/api/Account/EmployeeLogin",
+        {
+          email: formData.employeeId,
+          password: formData.password,
+          roleId: 2,
+        }
+      );
+
       if (response.status === 200) {
         const { accessToken, refreshToken } = response.data.data;
-  
+
         // Save tokens to localStorage
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('refreshToken', refreshToken);
-  
+        localStorage.setItem("accessToken", accessToken);
+        localStorage.setItem("refreshToken", refreshToken);
+
         onLoginSuccess();
-        navigate('/');
+        navigate("/");
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError("Invalid credentials. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      setError('Login failed. Please check your credentials.');
+      setError("Login failed. Please check your credentials.");
     }
   };
-  
 
   const useDemoAccount = () => {
     setFormData({
-      employeeId: 'EMP001',
-      password: 'password123',
+      employeeId: "EMP001",
+      password: "password123",
     });
   };
 
@@ -86,10 +94,12 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                     name="employeeId"
                     type="text"
                     required
-                    className="appearance-none rounded-t-lg relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    className="appearance-none rounded-t-lg relative block w-full px-3 py-3  border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                     placeholder="Employee ID"
                     value={formData.employeeId}
-                    onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, employeeId: e.target.value })
+                    }
                   />
                 </div>
               </div>
@@ -104,13 +114,25 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
-                    className="appearance-none rounded-b-lg relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    className="appearance-none rounded-b-lg relative block w-full px-3 py-3  border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                     placeholder="Password"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                   />
+                  <div
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-5 w-5 text-gray-400" />
+                    ) : (
+                      <Eye className="h-5 w-5 text-gray-400" />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -122,25 +144,6 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
               >
                 Sign in
               </button>
-            </div>
-
-            <div className="text-center">
-              <button
-                type="button"
-                onClick={useDemoAccount}
-                className="text-sm text-blue-600 hover:text-blue-500"
-              >
-                Use demo account
-              </button>
-            </div>
-
-            <div className="text-sm text-center">
-              <Link
-                to="/signup"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Don't have an account? Sign up
-              </Link>
             </div>
           </form>
         </div>

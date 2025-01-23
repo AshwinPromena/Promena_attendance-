@@ -20,6 +20,14 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // Check for token in local storage on app load
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setIsAuthenticated(true); // Set authenticated if token exists
+    }
+  }, []);
+
   useEffect(() => {
     // Function to handle screen size changes
     const handleResize = () => {
@@ -65,7 +73,6 @@ function App() {
           {/* Main Content */}
           <main className="flex-1 p-6 ml-0 sm:ml-64">
             {/* Toggle button for mobile */}
-
             <Routes>
               <Route path="/" element={<AttendancePage />} />
               <Route path="/calendar" element={<CalendarPage />} />
@@ -80,14 +87,25 @@ function App() {
           <Route
             path="/login"
             element={
-              <LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
-             
+              isAuthenticated ? (
+                <Navigate to="/" replace />
+              ) : (
+                <LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
+              )
             }
-            
           />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/ResetPass" element={<ResetPass />} />
-
+          <Route
+            path="/signup"
+            element={
+              isAuthenticated ? <Navigate to="/" replace /> : <SignupPage />
+            }
+          />
+          <Route
+            path="/ResetPass"
+            element={
+              isAuthenticated ? <Navigate to="/" replace /> : <ResetPass />
+            }
+          />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       )}

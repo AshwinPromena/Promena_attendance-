@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Calendar, Clock, User, FileText, X, Menu } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Calendar, Clock, User, FileText, X, Menu, LogOut } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(true);
 
   const links = [
@@ -13,6 +14,11 @@ export default function Sidebar() {
     { icon: User, label: "Profile", path: "/profile" },
   ];
 
+  const handleLogout = () => {
+    localStorage.clear(); 
+    navigate("/login"); 
+  };
+
   return (
     <>
       {/* Toggle Button */}
@@ -20,7 +26,7 @@ export default function Sidebar() {
         className="fixed top-2 left-2 z-50 bg-blue-600 text-white p-2 rounded-full shadow-lg sm:hidden"
         onClick={() => setIsVisible(!isVisible)}
       >
-         {isVisible ? <X className=" w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        {isVisible ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
       </button>
 
       {/* Sidebar */}
@@ -35,30 +41,43 @@ export default function Sidebar() {
           <h1 className="text-2xl font-bold text-white">Employee Portal</h1>
         </div>
 
-
         {/* Sidebar Links */}
-        <nav className="mt-6">
-          {links.map((link) => {
-            const Icon = link.icon;
-            const isActive = location.pathname === link.path;
-            return (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200 ${
-                  isActive ? "bg-blue-50 border-r-4 border-blue-600 text-blue-600" : ""
-                }`}
-              >
-                <Icon
-                  className={`w-5 h-5 mr-3 ${
-                    isActive ? "text-blue-600" : "text-gray-400"
+        <div className="flex flex-col justify-between h-full">
+          {/* Navigation Links */}
+          <nav className="mt-6 flex-1">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const isActive = location.pathname === link.path;
+              return (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className={`flex items-center px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200 ${
+                    isActive
+                      ? "bg-blue-50 border-r-4 border-blue-600 text-blue-600"
+                      : ""
                   }`}
-                />
-                <span>{link.label}</span>
-              </Link>
-            );
-          })}
-        </nav>
+                >
+                  <Icon
+                    className={`w-5 h-5 mr-3 ${
+                      isActive ? "text-blue-600" : "text-gray-400"
+                    }`}
+                  />
+                  <span>{link.label}</span>
+                </Link>
+              );
+            })}
+
+            {/* Logout Link */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center w-full px-4 py-3 text-gray-700 hover:bg-blue-50 transition-colors duration-200"
+            >
+              <LogOut className="w-5 h-5 mr-3 text-gray-400" />
+              <span>Logout</span>
+            </button>
+          </nav>
+        </div>
       </div>
     </>
   );
